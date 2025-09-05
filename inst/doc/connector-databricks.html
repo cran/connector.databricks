@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Getting started with connector.databricks</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Getting started with
+connector.databricks</h1>
+
+
+
+<p>The connector.databricks package provides a convenient interface for
+accessing and interacting with Databricks tables and volumes directly
+from R.</p>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>This vignette will guide you through the process of connecting to a
+Databricks, retrieving data, and performing various operations using
+this package.</p>
+</div>
+<div id="connecting-to-a-databricks" class="section level2">
+<h2>Connecting to a Databricks</h2>
+<div id="without-connector-package" class="section level3">
+<h3>Without connector package</h3>
+<p>To get started, you need to establish a connection to your Databricks
+cluster or volume storage. Use:</p>
+<ul>
+<li><code>connector_databricks_table()</code> function to authenticate
+and connect to your Databricks cluster</li>
+<li><code>connector_databricks_volume()</code> function to connect to
+your Databricks volume storage</li>
+</ul>
+<p>Here’s an example of how to do this:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(connector.databricks)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co"># Connect to databricks tables using DBI</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>con <span class="ot">&lt;-</span> <span class="fu">connector_databricks_table</span>(</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  <span class="at">http_path =</span> <span class="st">&quot;path-to-cluster&quot;</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  <span class="at">catalog =</span> <span class="st">&quot;my_catalog&quot;</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="at">schema =</span> <span class="st">&quot;my_schema&quot;</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>)</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="co"># Connect to databricks volume</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>con <span class="ot">&lt;-</span> <span class="fu">connector_databricks_volume</span>(</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="at">catalog =</span> <span class="st">&quot;my_catalog&quot;</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  <span class="at">schema =</span> <span class="st">&quot;my_schema&quot;</span>,</span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>  <span class="at">path =</span> <span class="st">&quot;path-to-file-storage&quot;</span></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div id="with-connector-package-recommended" class="section level3">
+<h3>With connector package (recommended)</h3>
+<p>If you are using the connector package, you can connect to a
+Databricks datasources using the <code>connect()</code> function. This
+function based on a configuration file or a list creates a
+<code>connectors()</code> object with a <code>connector</code>for each
+of the specified datasources (for detailed explanation have a look at
+the <code>connector</code> package).</p>
+<p>Configuration file for connecting to Databricks should look like
+this:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">metadata</span><span class="kw">:</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="at">  </span><span class="fu">catalog</span><span class="kw">:</span><span class="at">  </span><span class="st">&quot;databricks_calatog&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="at">  </span><span class="fu">http_path</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;path-to-cluster&quot;</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="at">  </span><span class="fu">path</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;path-to-file-storage&quot;</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="at">  </span><span class="fu">project</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;project_name&quot;</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="at">  </span><span class="fu">trial</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;trial_name&quot;</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="fu">datasources</span><span class="kw">:</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;tables&quot;</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="at">    </span><span class="fu">backend</span><span class="kw">:</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;connector.databricks::connector_databricks_table&quot;</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="at">      </span><span class="fu">http_path</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;{metadata.http_path}&quot;</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="at">      </span><span class="fu">catalog</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;{metadata.catalog}&quot;</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="at">      </span><span class="fu">schema</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;{metadata.project}_{metadata.trial}_adam&quot;</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;volume&quot;</span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="at">    </span><span class="fu">backend</span><span class="kw">:</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;connector.databricks::connector_databricks_volume&quot;</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="at">      </span><span class="fu">path</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;{metadata.path}&quot;</span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="at">      </span><span class="fu">catalog</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;{metadata.catalog}&quot;</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="at">      </span><span class="fu">schema</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;{metadata.project}_{metadata.trial}_tfl&quot;</span></span></code></pre></div>
+<p>Save this to <code>_connector.yml</code> file and use the
+<code>connect()</code> function to connect to Databricks:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">library</span>(connector)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co"># Create connector object</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>db <span class="ot">&lt;-</span> <span class="fu">connect</span>()</span></code></pre></div>
+<p>Now you can access the Databricks cluster and volume using the
+<code>db</code> object and <code>tables</code> or <code>volume</code>
+field, respectively.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Connection to Databricks cluster. This will print object details</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>db<span class="sc">$</span>tables</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co"># Connection to Databricks cluster. This will print object details</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>db<span class="sc">$</span>volume</span></code></pre></div>
+<p>After the setup is done we can use these connections to manipulate
+Databricks data.</p>
+</div>
+</div>
+<div id="listing-data" class="section level2">
+<h2>Listing data</h2>
+<p>You can do some basic directory operations, such as creating,
+removing, and listing data inside directory, or listing tables inside
+database.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Create a directory</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>db<span class="sc">$</span>volume <span class="sc">|&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="fu">create_directory_cnt</span>(<span class="st">&quot;new_directory&quot;</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co"># Remove a directory</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>db<span class="sc">$</span>volume <span class="sc">|&gt;</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  <span class="fu">remove_directory_cnt</span>(<span class="st">&quot;new_directory&quot;</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co"># List content inside volume directory</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>db<span class="sc">$</span>volume <span class="sc">|&gt;</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>  <span class="fu">list_content_cnt</span>()</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co"># List tables inside database</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>db<span class="sc">$</span>tables <span class="sc">|&gt;</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>  <span class="fu">list_content_cnt</span>()</span></code></pre></div>
+</div>
+<div id="reading-and-writing-data" class="section level2">
+<h2>Reading and writing data</h2>
+<p>The <code>connector</code> packages provide a set of functions to
+read and write data from/to the datasources. They all have similar
+interface, so it’s easy to switch between them.</p>
+<p>Now, we will show how to read and write different types of data
+from/to Databricks. In these examples we will be using <code>iris</code>
+and <code>mtcars</code> datasets.</p>
+<p>Here is an example of writing data to a table on a cluster:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co"># Manipulate data</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="do">## Iris data</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>setosa <span class="ot">&lt;-</span> iris <span class="sc">|&gt;</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>  <span class="fu">filter</span>(Species <span class="sc">==</span> <span class="st">&quot;setosa&quot;</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>mean_for_all_iris <span class="ot">&lt;-</span> iris <span class="sc">|&gt;</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>  <span class="fu">group_by</span>(Species) <span class="sc">|&gt;</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>  <span class="fu">summarise_all</span>(<span class="fu">list</span>(mean, median, sd, min, max))</span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="do">## mtcars data</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>cars <span class="ot">&lt;-</span> mtcars <span class="sc">|&gt;</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>  <span class="fu">filter</span>(mpg <span class="sc">&gt;</span> <span class="dv">22</span>)</span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a>mean_for_all_mtcars <span class="ot">&lt;-</span> mtcars <span class="sc">|&gt;</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>  <span class="fu">group_by</span>(gear) <span class="sc">|&gt;</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="fu">across</span>(</span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a>    <span class="fu">everything</span>(),</span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a>    <span class="fu">list</span>(</span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a>      <span class="st">&quot;mean&quot;</span> <span class="ot">=</span> mean,</span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a>      <span class="st">&quot;median&quot;</span> <span class="ot">=</span> median,</span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a>      <span class="st">&quot;sd&quot;</span> <span class="ot">=</span> sd,</span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a>      <span class="st">&quot;min&quot;</span> <span class="ot">=</span> min,</span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a>      <span class="st">&quot;max&quot;</span> <span class="ot">=</span> max</span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a>    ),</span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a>    <span class="at">.names =</span> <span class="st">&quot;{.col}_{.fn}&quot;</span></span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a>  )) <span class="sc">|&gt;</span></span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">pivot_longer</span>(</span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a>    <span class="at">cols =</span> <span class="sc">-</span>gear,</span>
+<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="fu">c</span>(<span class="st">&quot;.value&quot;</span>, <span class="st">&quot;stat&quot;</span>),</span>
+<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a>    <span class="at">names_sep =</span> <span class="st">&quot;_&quot;</span></span>
+<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a>  )</span>
+<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a></span>
+<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a><span class="do">## Store data</span></span>
+<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a>db<span class="sc">$</span>tables <span class="sc">|&gt;</span></span>
+<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a>  <span class="fu">write_cnt</span>(setosa, <span class="st">&quot;setosa&quot;</span>, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a></span>
+<span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a>db<span class="sc">$</span>tables <span class="sc">|&gt;</span></span>
+<span id="cb6-41"><a href="#cb6-41" tabindex="-1"></a>  <span class="fu">write_cnt</span>(mean_for_all_iris, <span class="st">&quot;mean_iris&quot;</span>, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-42"><a href="#cb6-42" tabindex="-1"></a></span>
+<span id="cb6-43"><a href="#cb6-43" tabindex="-1"></a>db<span class="sc">$</span>tables <span class="sc">|&gt;</span></span>
+<span id="cb6-44"><a href="#cb6-44" tabindex="-1"></a>  <span class="fu">write_cnt</span>(cars, <span class="st">&quot;cars_mpg&quot;</span>, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-45"><a href="#cb6-45" tabindex="-1"></a></span>
+<span id="cb6-46"><a href="#cb6-46" tabindex="-1"></a>db<span class="sc">$</span>tables <span class="sc">|&gt;</span></span>
+<span id="cb6-47"><a href="#cb6-47" tabindex="-1"></a>  <span class="fu">write_cnt</span>(mean_for_all_mtcars, <span class="st">&quot;mean_mtcars&quot;</span>, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p>Now, let’s read the data back manipulate it a bit and write it to the
+Databricks volume. This way we can save different types of data in
+different formats.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co"># List and load data from cluster</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>db<span class="sc">$</span>tables <span class="sc">|&gt;</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  <span class="fu">list_content_cnt</span>()</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>table <span class="ot">&lt;-</span> db<span class="sc">$</span>tables <span class="sc">|&gt;</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>  <span class="fu">read_cnt</span>(<span class="st">&quot;mean_mtcars&quot;</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>gttable <span class="ot">&lt;-</span> table <span class="sc">|&gt;</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>  <span class="fu">gt</span>(<span class="at">groupname_col =</span> <span class="st">&quot;gear&quot;</span>)</span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co"># Save non-tabular data to databricks volume</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>tmp_file <span class="ot">&lt;-</span> <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">&quot;.docx&quot;</span>)</span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="fu">gtsave</span>(gttable, tmp_file)</span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a>db<span class="sc">$</span>volume <span class="sc">|&gt;</span></span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a>  <span class="fu">upload_cnt</span>(tmp_file, <span class="st">&quot;tmeanallmtcars.docx&quot;</span>)</span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a></span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a><span class="co"># Manipulate data</span></span>
+<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a>setosa_fsetosa <span class="ot">&lt;-</span> db<span class="sc">$</span>tables <span class="sc">|&gt;</span></span>
+<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a>  <span class="fu">read_cnt</span>(<span class="st">&quot;setosa&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a>  <span class="fu">filter</span>(Sepal.Length <span class="sc">&gt;</span> <span class="dv">5</span>)</span>
+<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a></span>
+<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a>fsetosa <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(setosa) <span class="sc">+</span></span>
+<span id="cb7-27"><a href="#cb7-27" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> Sepal.Length, <span class="at">y =</span> Sepal.Width) <span class="sc">+</span></span>
+<span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span>
+<span id="cb7-29"><a href="#cb7-29" tabindex="-1"></a></span>
+<span id="cb7-30"><a href="#cb7-30" tabindex="-1"></a><span class="do">## Store data into output location</span></span>
+<span id="cb7-31"><a href="#cb7-31" tabindex="-1"></a>db<span class="sc">$</span>volume <span class="sc">|&gt;</span></span>
+<span id="cb7-32"><a href="#cb7-32" tabindex="-1"></a>  <span class="fu">write_cnt</span>(fsetosa<span class="sc">$</span>data, <span class="st">&quot;fsetosa.csv&quot;</span>)</span>
+<span id="cb7-33"><a href="#cb7-33" tabindex="-1"></a>db<span class="sc">$</span>volume <span class="sc">|&gt;</span></span>
+<span id="cb7-34"><a href="#cb7-34" tabindex="-1"></a>  <span class="fu">write_cnt</span>(fsetosa, <span class="st">&quot;fsetosa.rds&quot;</span>)</span>
+<span id="cb7-35"><a href="#cb7-35" tabindex="-1"></a></span>
+<span id="cb7-36"><a href="#cb7-36" tabindex="-1"></a>tmp_file <span class="ot">&lt;-</span> <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">&quot;.png&quot;</span>)</span>
+<span id="cb7-37"><a href="#cb7-37" tabindex="-1"></a><span class="fu">ggsave</span>(tmp_file, fsetosa)</span>
+<span id="cb7-38"><a href="#cb7-38" tabindex="-1"></a>db<span class="sc">$</span>volume <span class="sc">|&gt;</span></span>
+<span id="cb7-39"><a href="#cb7-39" tabindex="-1"></a>  <span class="fu">upload_cnt</span>(tmp_file, <span class="st">&quot;fsetosa.png&quot;</span>)</span></code></pre></div>
+</div>
+<div id="conclusion" class="section level2">
+<h2>Conclusion</h2>
+<p>In this vignette we showed how to connect to Databricks datasources,
+read and write data from them. We also showed how to use the connector
+package to connect to Databricks and how to manipulate data using the
+connector package.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
