@@ -5,7 +5,6 @@ aut
 autoupdate
 brickster
 BugReports
-calatog
 Cervan
 cgid
 cli
@@ -15,7 +14,9 @@ CMD
 cnt
 Codecov
 Config
+connectcreds
 connectordatabricks
+ConnectorDatabricksSQL
 ConnectorDatabricksTable
 ConnectorDatabricksVolume
 ConnectorDBI
@@ -30,6 +31,7 @@ Databricks
 databrickscfg
 DatabricksClient
 databrickslabs
+DatabricksSQL
 dataframe
 datasources
 dbi
@@ -62,6 +64,7 @@ https
 httr
 ignorePaths
 ignoreRegExpList
+integrations
 io
 jsonlite
 JW
@@ -69,6 +72,7 @@ knitr
 licensable
 Licensor
 Lifecycle
+lifecycle
 lintr
 Lundsgaard
 MacOS
@@ -83,6 +87,7 @@ Nordisk
 Novo
 novonordisk
 NovoNordisk
+OAuth
 Obucina
 odbc
 odbcdriver
@@ -101,6 +106,7 @@ rdname
 README
 renv
 Renviron
+reusability
 rlang
 rmarkdown
 Roxygen
@@ -132,6 +138,7 @@ Timepoint
 tmeanallmtcars
 tmp
 unixodbc
+usethis
 VignetteBuilder
 vlob
 withr
@@ -142,4 +149,3 @@ Yk
 yml
 ƣ
 ϥ
-Codecov

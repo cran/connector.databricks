@@ -7,9 +7,9 @@ knitr::opts_chunk$set(
 ## ----eval=FALSE---------------------------------------------------------------
 # library(connector.databricks)
 # 
-# # Connect to databricks tables using DBI
-# con <- connector_databricks_table(
-#   http_path = "path-to-cluster",
+# # Connect to databricks tables using a SQL warehouse
+# con <- connector_databricks_sql(
+#   warehouse_id = "your-warehouse-id",
 #   catalog = "my_catalog",
 #   schema = "my_schema"
 # )
@@ -28,10 +28,10 @@ knitr::opts_chunk$set(
 # db <- connect()
 
 ## ----eval=FALSE---------------------------------------------------------------
-# # Connection to Databricks cluster. This will print object details
+# # Connection to Databricks tables. This will print object details
 # db$tables
 # 
-# # Connection to Databricks cluster. This will print object details
+# # Connection to Databricks volume. This will print object details
 # db$volume
 
 ## ----eval=FALSE---------------------------------------------------------------
@@ -105,7 +105,7 @@ knitr::opts_chunk$set(
 # library(tidyr)
 # library(ggplot2)
 # 
-# # List and load data from cluster
+# # List and load data from tables
 # db$tables |>
 #   list_content_cnt()
 # 
@@ -126,7 +126,7 @@ knitr::opts_chunk$set(
 #   read_cnt("setosa") |>
 #   filter(Sepal.Length > 5)
 # 
-# fsetosa <- ggplot(setosa) +
+# fsetosa <- ggplot(setosa_fsetosa) +
 #   aes(x = Sepal.Length, y = Sepal.Width) +
 #   geom_point()
 # 

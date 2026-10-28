@@ -84,7 +84,7 @@ test_that("write_table_volume works", {
     overwrite = FALSE,
     tags = list("test_tag" = tag_value)
   ) |>
-    expect_no_failure()
+    expect_no_error()
 
   setup_table_connector |>
     list_content_tags(tags = glue::glue("tag_value = '{tag_value}'")) |>
@@ -105,7 +105,7 @@ test_that("write_table_volume works", {
     name = table_name,
     overwrite = TRUE
   ) |>
-    expect_no_failure()
+    expect_no_error()
 
   setup_table_connector$conn |>
     DBI::dbGetQuery(paste(
@@ -138,12 +138,12 @@ test_that("list_content_tags works", {
     overwrite = TRUE,
     tags = list("test_tag" = tag_value)
   ) |>
-    expect_no_failure()
+    expect_no_error()
 
   # Check if the table can be found based on tags
   tables <- setup_table_connector |>
     list_content_tags(tags = glue::glue("tag_value = '{tag_value}'")) |>
-    expect_no_failure()
+    expect_no_error()
 
   setup_table_connector |>
     list_content_tags(tags = glue::glue("tag_value = '{tag_value}'")) |>
@@ -227,18 +227,17 @@ test_that("read and write empty table works", {
     stringsAsFactors = FALSE
   )
 
-  expect_no_failure(write_table_volume(
+  write_table_volume(
     connector_object = setup_table_connector,
     empty_table,
     "empty_table",
     overwrite = TRUE
-  ))
+  ) |>
+    expect_no_error()
 
-  expect_no_failure(
-    empty_result <- read_table_timepoint(
-      connector_object = setup_table_connector,
-      name = "empty_table"
-    )
+  empty_result <- read_table_timepoint(
+    connector_object = setup_table_connector,
+    name = "empty_table"
   )
 
   expect_equal(empty_table, empty_result)
@@ -259,7 +258,7 @@ test_that("tmp volume removal works", {
   list_of_volumes <- brickster::db_uc_volumes_list(
     catalog = setup_db_catalog,
     schema = setup_db_schema
-  )
+  )$volumes
 
   expect_no_error(
     for (volume in list_of_volumes) {

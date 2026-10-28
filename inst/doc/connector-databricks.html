@@ -347,28 +347,28 @@ accessing and interacting with Databricks tables and volumes directly
 from R.</p>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p>This vignette will guide you through the process of connecting to a
+<p>This vignette will guide you through the process of connecting to
 Databricks, retrieving data, and performing various operations using
 this package.</p>
 </div>
-<div id="connecting-to-a-databricks" class="section level2">
-<h2>Connecting to a Databricks</h2>
+<div id="connecting-to-databricks" class="section level2">
+<h2>Connecting to Databricks</h2>
 <div id="without-connector-package" class="section level3">
 <h3>Without connector package</h3>
 <p>To get started, you need to establish a connection to your Databricks
-cluster or volume storage. Use:</p>
+SQL warehouse or volume storage. Use:</p>
 <ul>
-<li><code>connector_databricks_table()</code> function to authenticate
-and connect to your Databricks cluster</li>
+<li><code>connector_databricks_sql()</code> function to connect to
+tables through your Databricks SQL warehouse</li>
 <li><code>connector_databricks_volume()</code> function to connect to
 your Databricks volume storage</li>
 </ul>
 <p>Here’s an example of how to do this:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(connector.databricks)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co"># Connect to databricks tables using DBI</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>con <span class="ot">&lt;-</span> <span class="fu">connector_databricks_table</span>(</span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  <span class="at">http_path =</span> <span class="st">&quot;path-to-cluster&quot;</span>,</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co"># Connect to databricks tables using a SQL warehouse</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>con <span class="ot">&lt;-</span> <span class="fu">connector_databricks_sql</span>(</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  <span class="at">warehouse_id =</span> <span class="st">&quot;your-warehouse-id&quot;</span>,</span>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  <span class="at">catalog =</span> <span class="st">&quot;my_catalog&quot;</span>,</span>
 <span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="at">schema =</span> <span class="st">&quot;my_schema&quot;</span></span>
 <span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>)</span>
@@ -379,6 +379,14 @@ your Databricks volume storage</li>
 <span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  <span class="at">schema =</span> <span class="st">&quot;my_schema&quot;</span>,</span>
 <span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>  <span class="at">path =</span> <span class="st">&quot;path-to-file-storage&quot;</span></span>
 <span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>)</span></code></pre></div>
+<p>Both connections authenticate through the brickster package. See <a href="https://novonordisk-opensource.github.io/connector.databricks/articles/authentication.html">Authentication</a>
+for how to set up your credentials. <code>warehouse_id</code> defaults
+to the <code>DATABRICKS_WAREHOUSE_ID</code> environment variable.</p>
+<p>Tables can also be accessed through a cluster with
+<code>connector_databricks_table()</code>, which uses the
+<code>odbc::databricks()</code> driver. See <a href="https://novonordisk-opensource.github.io/connector.databricks/articles/table-vs-sql.html">Choosing
+between ConnectorDatabricksSQL and ConnectorDatabricksTable</a> for the
+differences between the two.</p>
 </div>
 <div id="with-connector-package-recommended" class="section level3">
 <h3>With connector package (recommended)</h3>
@@ -391,20 +399,20 @@ the <code>connector</code> package).</p>
 <p>Configuration file for connecting to Databricks should look like
 this:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">metadata</span><span class="kw">:</span></span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="at">  </span><span class="fu">catalog</span><span class="kw">:</span><span class="at">  </span><span class="st">&quot;databricks_calatog&quot;</span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="at">  </span><span class="fu">http_path</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;path-to-cluster&quot;</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="at">  </span><span class="fu">catalog</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;databricks_catalog&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="at">  </span><span class="fu">warehouse_id</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;your-warehouse-id&quot;</span></span>
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="at">  </span><span class="fu">path</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;path-to-file-storage&quot;</span></span>
 <span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="at">  </span><span class="fu">project</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;project_name&quot;</span></span>
 <span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="at">  </span><span class="fu">trial</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;trial_name&quot;</span></span>
 <span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a></span>
 <span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="fu">datasources</span><span class="kw">:</span></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;tables&quot;</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="at">  </span><span class="kw">- </span><span class="fu">name</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;tables&quot;</span></span>
 <span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="at">    </span><span class="fu">backend</span><span class="kw">:</span></span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;connector.databricks::connector_databricks_table&quot;</span></span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="at">      </span><span class="fu">http_path</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;{metadata.http_path}&quot;</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;connector.databricks::connector_databricks_sql&quot;</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="at">      </span><span class="fu">warehouse_id</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;{metadata.warehouse_id}&quot;</span></span>
 <span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="at">      </span><span class="fu">catalog</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;{metadata.catalog}&quot;</span></span>
 <span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="at">      </span><span class="fu">schema</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;{metadata.project}_{metadata.trial}_adam&quot;</span></span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;volume&quot;</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="at">  </span><span class="kw">- </span><span class="fu">name</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;volume&quot;</span></span>
 <span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="at">    </span><span class="fu">backend</span><span class="kw">:</span></span>
 <span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="at">      </span><span class="fu">type</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;connector.databricks::connector_databricks_volume&quot;</span></span>
 <span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="at">      </span><span class="fu">path</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;{metadata.path}&quot;</span></span>
@@ -416,13 +424,13 @@ this:</p>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co"># Create connector object</span></span>
 <span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>db <span class="ot">&lt;-</span> <span class="fu">connect</span>()</span></code></pre></div>
-<p>Now you can access the Databricks cluster and volume using the
+<p>Now you can access the Databricks tables and volume using the
 <code>db</code> object and <code>tables</code> or <code>volume</code>
 field, respectively.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Connection to Databricks cluster. This will print object details</span></span>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Connection to Databricks tables. This will print object details</span></span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>db<span class="sc">$</span>tables</span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co"># Connection to Databricks cluster. This will print object details</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co"># Connection to Databricks volume. This will print object details</span></span>
 <span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>db<span class="sc">$</span>volume</span></code></pre></div>
 <p>After the setup is done we can use these connections to manipulate
 Databricks data.</p>
@@ -457,7 +465,7 @@ interface, so it’s easy to switch between them.</p>
 <p>Now, we will show how to read and write different types of data
 from/to Databricks. In these examples we will be using <code>iris</code>
 and <code>mtcars</code> datasets.</p>
-<p>Here is an example of writing data to a table on a cluster:</p>
+<p>Here is an example of writing data to tables:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co"># Manipulate data</span></span>
@@ -512,7 +520,7 @@ different formats.</p>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
 <span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co"># List and load data from cluster</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co"># List and load data from tables</span></span>
 <span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>db<span class="sc">$</span>tables <span class="sc">|&gt;</span></span>
 <span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  <span class="fu">list_content_cnt</span>()</span>
 <span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a></span>
@@ -533,7 +541,7 @@ different formats.</p>
 <span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a>  <span class="fu">read_cnt</span>(<span class="st">&quot;setosa&quot;</span>) <span class="sc">|&gt;</span></span>
 <span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a>  <span class="fu">filter</span>(Sepal.Length <span class="sc">&gt;</span> <span class="dv">5</span>)</span>
 <span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a></span>
-<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a>fsetosa <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(setosa) <span class="sc">+</span></span>
+<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a>fsetosa <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(setosa_fsetosa) <span class="sc">+</span></span>
 <span id="cb7-27"><a href="#cb7-27" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> Sepal.Length, <span class="at">y =</span> Sepal.Width) <span class="sc">+</span></span>
 <span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span>
 <span id="cb7-29"><a href="#cb7-29" tabindex="-1"></a></span>
